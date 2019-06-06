@@ -7,10 +7,13 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ImageView;
 
 import com.aitekteam.developer.playnote.R;
 
 public class MainActivity extends AppCompatActivity {
+
+    private ImageView iconNothing;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -19,6 +22,12 @@ public class MainActivity extends AppCompatActivity {
 
         Toolbar mainToolbar = findViewById(R.id.main_toolbar);
         setSupportActionBar(mainToolbar);
+
+        initialize();
+    }
+
+    private void initialize() {
+        iconNothing = findViewById(R.id.icon_nothing);
     }
 
     @Override
