@@ -8,6 +8,7 @@ import java.io.Serializable;
 
 public class Note implements Serializable {
     private String title, date, description;
+    private int id;
 
     // CURSOR MODEL
 
@@ -32,10 +33,19 @@ public class Note implements Serializable {
     public Note() {
     }
 
-    public Note(String title, String date, String description) {
+    public Note(int id, String title, String date, String description) {
+        this.id = id;
         this.title = title;
         this.date = date;
         this.description = description;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getTitle() {

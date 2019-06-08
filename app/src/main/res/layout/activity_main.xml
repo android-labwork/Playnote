@@ -25,6 +25,13 @@
         app:layout_constraintTop_toTopOf="@+id/group"
         android:src="@drawable/ic_nothing"/>
 
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/list_note"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/main_toolbar"
+        android:padding="8dp"/>
+
     <androidx.constraintlayout.widget.Group
         android:id="@+id/group"
         android:layout_width="wrap_content"
@@ -33,6 +40,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintTop_toTopOf="parent"
+        android:visibility="gone"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
