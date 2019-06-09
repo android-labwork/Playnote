@@ -4,18 +4,21 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.constraintlayout.widget.Group;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.CursorLoader;
 import androidx.loader.content.Loader;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
+import android.content.ContentUris;
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ImageView;
+import android.view.View;
 
 import com.aitekteam.developer.playnote.R;
 import com.aitekteam.developer.playnote.adapters.NotesAdapter;
@@ -24,7 +27,7 @@ import com.aitekteam.developer.playnote.datas.Note;
 public class MainActivity extends AppCompatActivity implements
         LoaderManager.LoaderCallbacks<Cursor> {
 
-    private ImageView iconNothing;
+    private Group iconNothing;
     private RecyclerView listNote;
     private NotesAdapter adapter;
 
@@ -41,10 +44,24 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     private void initialize() {
-        iconNothing = findViewById(R.id.icon_nothing);
+        iconNothing = findViewById(R.id.group);
         listNote = findViewById(R.id.list_note);
         listNote.setLayoutManager(new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL));
-        adapter = new NotesAdapter(null);
+        adapter = new NotesAdapter(null, new NotesAdapter.OnSelectedItemClickListener() {
+            @Override
+            public void onItemClick(int position) {
+                Cursor cursor = adapter.getItem(position);
+                if (cursor != null && cursor.getCount() != 0) {
+                    int id = cursor.getInt(cursor.getColumnIndex(Note.NoteColumns._ID));
+                    Intent intent = new Intent(MainActivity.this, NoteDetailActivity.class);
+                    intent.putExtra("_ID", id);
+
+                    Uri currentPetUri = ContentUris.withAppendedId(Note.NoteColumns.CONTENT_URI, id);
+                    intent.setData(currentPetUri);
+                    startActivity(intent);
+                }
+            }
+        });
         listNote.setAdapter(adapter);
     }
 
@@ -82,7 +99,15 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor data) {
-        adapter.swapCursor(data);
+        if (data != null && data.getCount() != 0) {
+            listNote.setVisibility(View.VISIBLE);
+            iconNothing.setVisibility(View.GONE);
+            adapter.swapCursor(data);
+        }
+        else {
+            listNote.setVisibility(View.GONE);
+            iconNothing.setVisibility(View.VISIBLE);
+        }
     }
 
     @Override
