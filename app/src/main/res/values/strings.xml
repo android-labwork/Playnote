@@ -4,10 +4,15 @@
     <string name="title">Title</string>
     <string name="description">Description here</string>
     <string name="save">Save</string>
-    
+    <string name="edit">Edit</string>
+    <string name="delete">Delete</string>
+
     <string name="msg_insert_success">Successfully added a note</string>
     <string name="msg_insert_failed">Failed to add note</string>
     <string name="msg_discard_save">Do you want to save the note?</string>
+    <string name="msg_delete_note">Do you want to delete the note?</string>
+    <string name="msg_deletes_note">Do you want to deletes the note?</string>
+    <string name="msg_add_note">Press + to create new note.</string>
 
     <string name="action_yes">Yes</string>
     <string name="action_no">No</string>
