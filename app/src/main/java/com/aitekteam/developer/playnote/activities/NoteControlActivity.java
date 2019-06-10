@@ -7,6 +7,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.loader.app.LoaderManager;
+import androidx.loader.content.CursorLoader;
 import androidx.loader.content.Loader;
 
 import android.content.ContentValues;
@@ -36,6 +37,8 @@ public class NoteControlActivity extends AppCompatActivity implements
     private EditText title, description;
     private static final int SAVE_ACTION = 1;
     private static final int SAVE_ACTION_ALERT = 0;
+    private Uri uri = null;
+    private int id = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,8 +53,20 @@ public class NoteControlActivity extends AppCompatActivity implements
 
         initialize();
 
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd", Locale.US);
-        date.setText(simpleDateFormat.format(new Date()));
+        try {
+            id = getIntent().getIntExtra("_ID", -1);
+            uri = getIntent().getData();
+            if (id != -1 && uri != null) {
+                getSupportLoaderManager().initLoader(0, null, this);
+            }
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        if (id == -1) {
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd", Locale.US);
+            date.setText(simpleDateFormat.format(new Date()));
+        }
 
         date.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -83,11 +98,13 @@ public class NoteControlActivity extends AppCompatActivity implements
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.save) {
-            saveNote(SAVE_ACTION);
+            if (id == -1) saveNote(SAVE_ACTION);
+            else saveEditedNote(SAVE_ACTION);
             return true;
         }
         else if (item.getItemId() == android.R.id.home) {
-            saveNote(SAVE_ACTION_ALERT);
+            if (id == -1) saveNote(SAVE_ACTION_ALERT);
+            else saveEditedNote(SAVE_ACTION_ALERT);
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -130,6 +147,43 @@ public class NoteControlActivity extends AppCompatActivity implements
         finish();
     }
 
+    private void saveEditedNote(int action) {
+        String data_title = title.getText().toString().trim();
+        String data_desscription = description.getText().toString().trim();
+        String data_date = date.getText().toString().trim();
+
+        final ContentValues values = new ContentValues();
+        values.put(Note.NoteColumns._TITLE, data_title);
+        values.put(Note.NoteColumns._DESCRIPTION, data_desscription);
+        values.put(Note.NoteColumns._DATE, data_date);
+
+        if (action == SAVE_ACTION_ALERT) {
+            dialogAction(getString(R.string.msg_discard_save),
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            int newUri = getContentResolver().update(uri, values, null, null);
+                            if (newUri == 0)
+                                Toast.makeText(NoteControlActivity.this, R.string.msg_insert_failed, Toast.LENGTH_SHORT).show();
+                            else
+                                Toast.makeText(NoteControlActivity.this, R.string.msg_insert_success, Toast.LENGTH_SHORT).show();
+                        }
+                    }, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                        }
+                    });
+        }
+        else {
+            int newUri = getContentResolver().update(uri, values, null, null);
+            if (newUri == 0)
+                Toast.makeText(this, R.string.msg_insert_failed, Toast.LENGTH_SHORT).show();
+            else
+                Toast.makeText(this, R.string.msg_insert_success, Toast.LENGTH_SHORT).show();
+        }
+        finish();
+    }
+
     private void dialogAction(String message, DialogInterface.OnClickListener accept,
                               DialogInterface.OnClickListener discard) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -145,16 +199,32 @@ public class NoteControlActivity extends AppCompatActivity implements
     @NonNull
     @Override
     public Loader<Cursor> onCreateLoader(int id, @Nullable Bundle args) {
-        return null;
+        String[] projection = {
+                Note.NoteColumns._ID,
+                Note.NoteColumns._TITLE,
+                Note.NoteColumns._DESCRIPTION,
+                Note.NoteColumns._DATE};
+
+        return new CursorLoader(this,
+                uri,
+                projection,
+                null,
+                null,
+                null);
     }
 
     @Override
     public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor data) {
-
+        if (data != null && data.getCount() == 1) {
+            if (data.moveToFirst()) {
+                title.setText(data.getString(data.getColumnIndex(Note.NoteColumns._TITLE)));
+                date.setText(data.getString(data.getColumnIndex(Note.NoteColumns._DATE)));
+                description.setText(data.getString(data.getColumnIndex(Note.NoteColumns._DESCRIPTION)));
+            }
+        }
     }
 
     @Override
     public void onLoaderReset(@NonNull Loader<Cursor> loader) {
-
     }
 }
