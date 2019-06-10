@@ -3,6 +3,7 @@ package com.aitekteam.developer.playnote.activities;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.view.ActionMode;
 import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.Group;
 import androidx.loader.app.LoaderManager;
@@ -30,6 +31,7 @@ public class MainActivity extends AppCompatActivity implements
     private Group iconNothing;
     private RecyclerView listNote;
     private NotesAdapter adapter;
+    private ActionMode actionMode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,12 +49,22 @@ public class MainActivity extends AppCompatActivity implements
         iconNothing = findViewById(R.id.group);
         listNote = findViewById(R.id.list_note);
         listNote.setLayoutManager(new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL));
-        adapter = new NotesAdapter(null, new NotesAdapter.OnSelectedItemClickListener() {
+        adapter = new NotesAdapter(this, null, new NotesAdapter.OnSelectedItemClickListener() {
             @Override
             public void onItemClick(int position) {
                 Cursor cursor = adapter.getItem(position);
                 if (cursor != null && cursor.getCount() != 0) {
                     int id = cursor.getInt(cursor.getColumnIndex(Note.NoteColumns._ID));
+
+                    if (actionMode != null) {
+                        adapter.toggleSelected(String.valueOf(id));
+                        if (adapter.getSelectedCount() == 0)
+                            actionMode.finish();
+                        else
+                            actionMode.invalidate();
+                        return;
+                    }
+
                     Intent intent = new Intent(MainActivity.this, NoteDetailActivity.class);
                     intent.putExtra("_ID", id);
 
@@ -61,9 +73,57 @@ public class MainActivity extends AppCompatActivity implements
                     startActivity(intent);
                 }
             }
+
+            @Override
+            public boolean onItemLongClick(int position) {
+                Cursor cursor = adapter.getItem(position);
+                if (cursor != null && cursor.getCount() != 0) {
+                    if (actionMode != null) return false;
+                    int id = cursor.getInt(cursor.getColumnIndex(Note.NoteColumns._ID));
+                    adapter.toggleSelected(String.valueOf(id));
+                    actionMode = startSupportActionMode(mActionModeCallback);
+                    return true;
+                }
+                return false;
+            }
         });
         listNote.setAdapter(adapter);
     }
+
+    private ActionMode.Callback mActionModeCallback = new ActionMode.Callback() {
+        @Override
+        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+            mode.getMenuInflater().inflate(R.menu.main_toolbar_action_mode, menu);
+            return true;
+        }
+
+        @Override
+        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+            mode.setTitle(String.valueOf(adapter.getSelectedCount()));
+            return true;
+        }
+
+        @Override
+        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+            if (adapter.getSelectedCount() == 1) item.setVisible(true);
+            else item.setVisible(false);
+
+            switch (item.getItemId()) {
+                case R.id.delete:
+//                    removeHistory();
+                    return true;
+                case R.id.edit:
+                    return true;
+            }
+            return false;
+        }
+
+        @Override
+        public void onDestroyActionMode(ActionMode mode) {
+            actionMode = null;
+            adapter.resetSelected();
+        }
+    };
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

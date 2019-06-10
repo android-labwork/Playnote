@@ -6,6 +6,7 @@
         <item name="colorPrimary">@color/colorWhite</item>
         <item name="colorPrimaryDark">@color/colorWhite</item>
         <item name="colorAccent">@color/colorDarkLightBlue</item>
+        <item name="windowActionModeOverlay">true</item>
     </style>
 
     <!-- Main Toolbar Theme -->
@@ -15,6 +16,7 @@
         <item name="colorPrimaryDark">@color/colorWhite</item>
         <item name="colorAccent">@color/colorDarkGrey</item>
         <item name="titleTextColor">@color/colorDarkLightBlue</item>
+        <item name="windowActionModeOverlay">true</item>
     </style>
 
 </resources>
