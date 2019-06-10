@@ -25,6 +25,15 @@
         app:layout_constraintTop_toTopOf="@+id/group"
         android:src="@drawable/ic_nothing"/>
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/icon_nothing"
+        android:text="@string/msg_add_note"
+        android:textAlignment="center"
+        android:layout_marginTop="16dp"
+        android:textSize="18sp"/>
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/list_note"
         android:layout_width="match_parent"

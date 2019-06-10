@@ -12,6 +12,7 @@
     <string name="msg_discard_save">Do you want to save the note?</string>
     <string name="msg_delete_note">Do you want to delete the note?</string>
     <string name="msg_deletes_note">Do you want to deletes the note?</string>
+    <string name="msg_add_note">Press + to create new note.</string>
 
     <string name="action_yes">Yes</string>
     <string name="action_no">No</string>
