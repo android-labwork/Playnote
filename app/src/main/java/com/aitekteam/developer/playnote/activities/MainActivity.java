@@ -2,6 +2,7 @@ package com.aitekteam.developer.playnote.activities;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.view.ActionMode;
 import androidx.appcompat.widget.Toolbar;
@@ -13,10 +14,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 import android.content.ContentUris;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -24,6 +27,8 @@ import android.view.View;
 import com.aitekteam.developer.playnote.R;
 import com.aitekteam.developer.playnote.adapters.NotesAdapter;
 import com.aitekteam.developer.playnote.datas.Note;
+
+import java.util.Collections;
 
 public class MainActivity extends AppCompatActivity implements
         LoaderManager.LoaderCallbacks<Cursor> {
@@ -100,19 +105,43 @@ public class MainActivity extends AppCompatActivity implements
         @Override
         public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
             mode.setTitle(String.valueOf(adapter.getSelectedCount()));
+            MenuItem item = menu.getItem(0);
+            if (adapter.getSelectedCount() == 1) item.setVisible(true);
+            else item.setVisible(false);
             return true;
         }
 
         @Override
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-            if (adapter.getSelectedCount() == 1) item.setVisible(true);
-            else item.setVisible(false);
-
             switch (item.getItemId()) {
                 case R.id.delete:
-//                    removeHistory();
+                    dialogAction(getResources().getString(R.string.msg_deletes_note),
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    getContentResolver().delete(Note.NoteColumns.CONTENT_URI,
+                                            String.format(Note.NoteColumns._ID + " IN (%s)", new Object[] { TextUtils.join(",", Collections.nCopies(adapter.getSelectedCount(), "?")) }),
+                                            adapter.getIds().toArray(new String[adapter.getSelectedCount()])
+                                    );
+                                    adapter.resetSelected();
+                                    actionMode.finish();
+                                }
+                            },
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {}
+                            });
                     return true;
                 case R.id.edit:
+                    int id = Integer.parseInt(adapter.getIds().get(0));
+                    Intent intent = new Intent(MainActivity.this, NoteControlActivity.class);
+                    intent.putExtra("_ID", id);
+
+                    Uri currentPetUri = ContentUris.withAppendedId(Note.NoteColumns.CONTENT_URI, id);
+                    intent.setData(currentPetUri);
+                    startActivity(intent);
+                    adapter.resetSelected();
+                    actionMode.finish();
                     return true;
             }
             return false;
@@ -173,5 +202,17 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onLoaderReset(@NonNull Loader<Cursor> loader) {
         adapter.swapCursor(null);
+    }
+
+    private void dialogAction(String message, DialogInterface.OnClickListener accept,
+                              DialogInterface.OnClickListener discard) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(message);
+        builder.setPositiveButton(R.string.action_yes, accept);
+        builder.setNegativeButton(R.string.action_no, discard);
+
+        // Create and show the AlertDialog
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
     }
 }

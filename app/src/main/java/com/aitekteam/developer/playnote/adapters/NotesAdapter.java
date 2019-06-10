@@ -109,6 +109,10 @@ public class NotesAdapter extends BaseCursorAdapterHelper<NotesAdapter.ViewHolde
         return super.getItem(position);
     }
 
+    public ArrayList<String> getIds() {
+        return ids;
+    }
+
     public interface OnSelectedItemClickListener {
         void onItemClick(int position);
         boolean onItemLongClick(int position);

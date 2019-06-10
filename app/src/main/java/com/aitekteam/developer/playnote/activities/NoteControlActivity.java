@@ -130,6 +130,7 @@ public class NoteControlActivity extends AppCompatActivity implements
                                 Toast.makeText(NoteControlActivity.this, R.string.msg_insert_failed, Toast.LENGTH_SHORT).show();
                             else
                                 Toast.makeText(NoteControlActivity.this, R.string.msg_insert_success, Toast.LENGTH_SHORT).show();
+                            finish();
                         }
                     }, new DialogInterface.OnClickListener() {
                         @Override
@@ -143,8 +144,8 @@ public class NoteControlActivity extends AppCompatActivity implements
                 Toast.makeText(this, R.string.msg_insert_failed, Toast.LENGTH_SHORT).show();
             else
                 Toast.makeText(this, R.string.msg_insert_success, Toast.LENGTH_SHORT).show();
+            finish();
         }
-        finish();
     }
 
     private void saveEditedNote(int action) {
@@ -167,6 +168,7 @@ public class NoteControlActivity extends AppCompatActivity implements
                                 Toast.makeText(NoteControlActivity.this, R.string.msg_insert_failed, Toast.LENGTH_SHORT).show();
                             else
                                 Toast.makeText(NoteControlActivity.this, R.string.msg_insert_success, Toast.LENGTH_SHORT).show();
+                            finish();
                         }
                     }, new DialogInterface.OnClickListener() {
                         @Override
@@ -180,8 +182,8 @@ public class NoteControlActivity extends AppCompatActivity implements
                 Toast.makeText(this, R.string.msg_insert_failed, Toast.LENGTH_SHORT).show();
             else
                 Toast.makeText(this, R.string.msg_insert_success, Toast.LENGTH_SHORT).show();
+            finish();
         }
-        finish();
     }
 
     private void dialogAction(String message, DialogInterface.OnClickListener accept,
